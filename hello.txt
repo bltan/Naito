@@ -1,5 +1,8 @@
 void setup(){
 size(600,400);
-textSize(40);
 textAlign("CENTER");
+}
+
+void main(){
+background(0);
 }
