@@ -3,8 +3,3 @@ size(600,400);
 textSize(40);
 textAlign("CENTER");
 }
-
-void main(){
-fill(0,0,255);
-text("hello Naito!!",width/2,height/2);
-}
