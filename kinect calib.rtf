@@ -1,0 +1,115 @@
+{\rtf1\ansi\ansicpg932\cocoartf1265\cocoasubrtf200
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 import SimpleOpenNI.*;\
+int i=0;\
+int speed=10;\
+int x=0;\
+PImage kubi;\
+\
+\
+SimpleOpenNI context;\
+color[] userColors = \{color(0,0,0),color(255,0,0),\
+                      color(0,255,0),color(0,0,255)\};\
+                      \
+void setup()\{\
+  frameRate(30);\
+  context = new SimpleOpenNI(this);\
+  context.setMirror(false);\
+  context.enableDepth();\
+  context.enableRGB();\
+  context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);\
+  context.alternativeViewPointDepthToImage();\
+  size(context.rgbWidth(),context.rgbHeight());\
+  strokeWeight(3);\
+  kubi=loadImage("sensei.png");\
+  \
+\}\
+\
+void draw()\{\
+  context.update();\
+  image(context.rgbImage(),0,0);\
+  \
+  for(int userId=1; userId<=context.getNumberOfUsers(); userId++)\{\
+    if(context.isTrackingSkeleton(userId))\{\
+      color user_color = userColors[userId % userColors.length];\
+      stroke(user_color);\
+      fill(user_color);\
+      drawSkeleton(userId);\
+    \}\
+  \}\
+    for (int h=0; h<=5; h++) \{\
+    float x=random(100, 400);\
+    fill(39, 181, 255);\
+    noStroke();\
+    ellipse(x, i, 20, 20);\
+    i=i+speed;\
+    if (i>=height)\
+      i=0;\
+  \}\
+\}\
+\
+void drawSkeleton(int userId)\{\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_HEAD,SimpleOpenNI.SKEL_NECK);\
+  \
+  context.drawLimb(userId,SimpleOpenNI.SKEL_NECK,\
+                          SimpleOpenNI.SKEL_LEFT_SHOULDER);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_LEFT_SHOULDER,\
+                          SimpleOpenNI.SKEL_LEFT_ELBOW);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_LEFT_ELBOW,\
+                          SimpleOpenNI.SKEL_LEFT_HAND);\
+                         \
+  \
+  context.drawLimb(userId,SimpleOpenNI.SKEL_NECK,\
+                          SimpleOpenNI.SKEL_RIGHT_SHOULDER);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_RIGHT_SHOULDER,\
+                          SimpleOpenNI.SKEL_RIGHT_ELBOW);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_RIGHT_ELBOW,\
+                          SimpleOpenNI.SKEL_RIGHT_HAND);\
+  \
+                          \
+  context.drawLimb(userId,SimpleOpenNI.SKEL_LEFT_SHOULDER,\
+                          SimpleOpenNI.SKEL_TORSO);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_RIGHT_SHOULDER,\
+                          SimpleOpenNI.SKEL_TORSO);\
+                          \
+  context.drawLimb(userId,SimpleOpenNI.SKEL_TORSO,\
+                          SimpleOpenNI.SKEL_LEFT_HIP);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_LEFT_HIP,\
+                          SimpleOpenNI.SKEL_LEFT_KNEE);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_LEFT_KNEE,\
+                          SimpleOpenNI.SKEL_LEFT_FOOT);                       \
+                          \
+  context.drawLimb(userId,SimpleOpenNI.SKEL_TORSO,\
+                          SimpleOpenNI.SKEL_RIGHT_HIP);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_RIGHT_HIP,\
+                          SimpleOpenNI.SKEL_RIGHT_KNEE);\
+  context.drawLimb(userId,SimpleOpenNI.SKEL_RIGHT_KNEE,\
+                          SimpleOpenNI.SKEL_RIGHT_FOOT);                        \
+  \
+  PVector realPos = new PVector();\
+  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_HAND,realPos);\
+  \
+  PVector screenPos = new PVector();\
+  context.convertRealWorldToProjective(realPos,screenPos);\
+  image(kubi,screenPos.x-50,screenPos.y-50,100,100);\
+\}\
+\
+void onNewUser(int userId)\{\
+  context.startPoseDetection("Psi",userId);\
+\}\
+\
+void onStartPose(String pose, int userId)\{\
+  context.stopPoseDetection(userId);\
+  context.requestCalibrationSkeleton(userId,true);\
+\}\
+\
+void onEndCalibration(int userId, boolean successfull)\{\
+  if(successfull)\{\
+    context.startTrackingSkeleton(userId);\
+  \}else\{\
+    context.startPoseDetection("Psi",userId);\
+  \}\
+\} }
